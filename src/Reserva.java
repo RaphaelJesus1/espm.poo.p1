@@ -18,6 +18,10 @@ public class Reserva implements Pagamento{
 		}
 	}
 	
+	public Cliente getCliente() {
+		return cliente;
+	}
+	
 	@Override
 	public String toString() {
 		String sigla = "";
@@ -28,5 +32,16 @@ public class Reserva implements Pagamento{
 		}
 		return sigla+" - "+cliente.toString()
 			+" -> Pagamento "+ (pagamentoAVista ? "à vista":"parcelado");
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Reserva) {
+			Cliente auxCliente = ((Reserva) obj).getCliente();
+			if(cliente.equals(auxCliente)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

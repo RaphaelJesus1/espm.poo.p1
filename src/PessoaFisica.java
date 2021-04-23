@@ -6,4 +6,16 @@ public class PessoaFisica extends Cliente{
 		super(nome);
 		this.cpf = cpf;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof PessoaFisica) {
+			String auxCpf;
+			auxCpf = ((PessoaFisica) obj).cpf;
+			if(cpf.equals(auxCpf)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
