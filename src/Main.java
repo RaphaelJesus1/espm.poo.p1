@@ -68,6 +68,13 @@ public class Main {
 					break;
 				case 5:
 					// cancelar reserva
+					int index = indexPfOuPj(lista);
+					if(index != -1) {
+						lista.remove(index);
+						System.out.println("Reserva excluída com sucesso.");
+					} else {
+						System.out.println("Reserva não encontrada.");
+					}
 					break;
 				case 6:
 					//finalizar
@@ -82,10 +89,6 @@ public class Main {
 		
 		input.close();
 	}
-	
-	/*private static int pesquisarIndexPorDoc(String documento, ArrayList<Cliente> lista) {
-		return 0;//lista.indexOf(new Pessoa("", documento)); verifica se um objeto com cpf parecido existe. Se sim, retorna seu índice, se não retorna -1
-	} */
 	
 	public static void printEspera(List<Reserva> lista) {
 		if(lista.size() > 6) {
@@ -111,21 +114,21 @@ public class Main {
 		}
 	}
 	
-	public static void pesquisar(List<Reserva> lista) throws Exception{
-		String opcao;
-		int index = 0;
+	private static int indexPfOuPj(List<Reserva> lista) throws Exception{
+		int opcao;
+		int index = -1;
 		System.out.println("1. Pessoa física \n2. Pessoa jurídica");
-		opcao = input.next().trim();
+		opcao = input.nextInt();
 		input.nextLine();
 		
 		switch (opcao) {
-		case "1":
+		case 1:
 			String cpf;
 			System.out.print("CPF: ");
 			cpf = input.nextLine().trim();
 			index = pesquisarIndexPorCpf(cpf, lista);
 			break;
-		case "2":
+		case 2:
 			String cnpj;
 			System.out.print("CNPJ: ");
 			cnpj = input.nextLine().trim();
@@ -134,7 +137,11 @@ public class Main {
 		default:
 			throw new Exception("o valor deve ser 1 para Pessoa Física ou 2 para Pessoa Jurídica.");
 		}
-		
+		return index;
+	}
+	
+	public static void pesquisar(List<Reserva> lista) throws Exception{
+		int index = indexPfOuPj(lista);
 		if(index != -1) {
 			System.out.println(lista.get(index));
 			System.out.println("O cliente " + (index < 6 ? "possui mesa reservada.":String.format("está em %d° lugar na fila de espera.", index + 1)));
