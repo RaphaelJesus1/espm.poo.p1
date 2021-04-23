@@ -39,34 +39,20 @@ public class Main {
 				switch(opcao) {
 				case 1:
 					// reservar
-					boolean avista;
-					String aux;
-					Cliente novoCliente = cadastrarCliente(lista);
-					if(novoCliente == null) {
+					Reserva reserva = reservar(lista);
+					if(reserva == null) {
 						System.out.println("O cliente já foi cadastrado.\n");
 						break;
 					}
 					
-					System.out.print("Pagamento à vista?\nDigite SIM para confirmar ou qualquer outra palavra para pagar parcelado.\n> ");
-					aux = input.next();
-					if(aux.equalsIgnoreCase("sim")) {
-						System.out.println("Opção à vista.");
-						avista = true;
-					} else {
-						System.out.println("Opção parcelado.");
-						avista = false;
-					}
-					
-					Reserva reserva = new Reserva(novoCliente, avista);
 					lista.add(reserva);
 					System.out.println("Reserva efetuada com sucesso.");
 					
 					if(lista.indexOf(reserva) <= 5) {
 						System.out.println("Sua mesa está reservada.");
 					} else {
-						System.out.println("Você está no "+ (lista.indexOf(reserva)+1)+"° lugar na fila de espera.");
+						System.out.println("Você está no "+ (lista.indexOf(reserva)-5)+"° lugar da fila de espera.");
 					}
-					System.out.println();
 					break;
 				case 2:
 					// pesquisar
@@ -74,9 +60,11 @@ public class Main {
 					break;
 				case 3:
 					// imprimir reservas
+					printReserva(lista);
 					break;
 				case 4:
 					// imprimir lista de espera
+					printEspera(lista);
 					break;
 				case 5:
 					// cancelar reserva
@@ -88,6 +76,8 @@ public class Main {
 			}catch (Exception e) {
 				System.out.println("Opção inválida. Erro: "+ e.getMessage());
 			}
+		
+		System.out.println();
 		}
 		
 		input.close();
@@ -97,30 +87,52 @@ public class Main {
 		return 0;//lista.indexOf(new Pessoa("", documento)); verifica se um objeto com cpf parecido existe. Se sim, retorna seu índice, se não retorna -1
 	} */
 	
+	public static void printEspera(List<Reserva> lista) {
+		if(lista.size() > 6) {
+			int tamanho = lista.size() - 6; // ignorar os primeiros 6 elementos(pois já têm mesa).
+			System.out.println("| Lista de espera |");
+			for(int i = 0; i < tamanho; i++) {
+				System.out.println((i+1) + "° " + lista.get(i+6));
+			}
+		} else {
+			System.out.println("Não existe fila de espera.");
+		}
+	}
+	
+	public static void printReserva(List<Reserva> lista) {
+		if(lista.size() != 0) {
+			int tamanho = lista.size() > 6 ? 6:lista.size(); // para limitar os objetos impressos. imprimirá até, no máximo, o 6°.
+			System.out.println("| Lista de clientes com mesa |");
+			for(int i = 0; i < tamanho; i++) {
+				System.out.println((i+1) + "° " + lista.get(i));
+			}
+		} else {
+			System.out.println("Não existem reservas registradas.");
+		}
+	}
+	
 	public static void pesquisar(List<Reserva> lista) throws Exception{
 		String opcao;
 		int index = 0;
-		System.out.println("1 ou pf. Pessoa física \n2 ou pj. Pessoa jurídica");
+		System.out.println("1. Pessoa física \n2. Pessoa jurídica");
 		opcao = input.next().trim();
 		input.nextLine();
 		
 		switch (opcao) {
 		case "1":
-		case "pf":
 			String cpf;
 			System.out.print("CPF: ");
 			cpf = input.nextLine().trim();
 			index = pesquisarIndexPorCpf(cpf, lista);
 			break;
 		case "2":
-		case "pj":
 			String cnpj;
 			System.out.print("CNPJ: ");
 			cnpj = input.nextLine().trim();
 			index = pesquisarIndexPorCnpj(cnpj, lista);
 			break;
 		default:
-			throw new Exception("o valor deve ser 1 ou pf para Pessoa Física e 2 ou pj para Pessoa Jurídica.");
+			throw new Exception("o valor deve ser 1 para Pessoa Física ou 2 para Pessoa Jurídica.");
 		}
 		
 		if(index != -1) {
@@ -129,7 +141,6 @@ public class Main {
 		} else {
 			System.out.println("O cliente não possui reserva.");
 		}
-		System.out.println();
 	}
 	
 	private static int pesquisarIndexPorCpf(String cpf, List<Reserva> lista) {
@@ -140,6 +151,29 @@ public class Main {
 	private static int pesquisarIndexPorCnpj(String cnpj, List<Reserva> lista) {
 		PessoaJuridica pj = new PessoaJuridica("", cnpj);
 		return lista.indexOf(new Reserva(pj, true));
+	}
+	
+	public static Reserva reservar(List<Reserva> lista) throws Exception{
+		boolean avista;
+		int aux;
+		Cliente novoCliente = cadastrarCliente(lista);
+		if(novoCliente == null) {
+			return null;
+		}
+		
+		System.out.print("\nForma de pagamento?\n1. à vista\n2. parcelado.\n> ");
+		aux = input.nextInt();
+		if(aux == 1) {
+			System.out.println("> à vista.");
+			avista = true;
+		} else if(aux == 2){
+			System.out.println("> parcelado.");
+			avista = false;
+		} else {
+			throw new Exception("dígito de pagamento inválido.");
+		}
+		
+		return new Reserva(novoCliente, avista);
 	}
 	
 	public static Cliente cadastrarCliente(List<Reserva> lista) {
